@@ -86,7 +86,7 @@
                         <label for="senha-aluno" class="block text-gray-700 text-sm font-bold mb-2">Senha Provisória</label>
                         <input id="senha-aluno" type="password" required class="shadow-sm appearance-none border rounded-lg w-full py-3 px-4 text-gray-700">
                     </div>
-                    <p id="add-aluno-message" class="text-center mb-4" style="display: none;"></p>
+                    <p id="add-aluno-message" class="text-center mb-4 font-bold" style="display: none;"></p>
                     <button type="submit" id="add-aluno-button" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg">Salvar Aluno</button>
                 </form>
             </div>
@@ -118,24 +118,24 @@
             // --- Nossas Funções ---
             function showPage(pageName) {
                 for (let pageId in pages) {
-                    pages[pageId].style.display = 'none';
+                    if (pages[pageId]) pages[pageId].style.display = 'none';
                 }
-                pages[pageName].style.display = (pageName === 'login') ? 'flex' : 'block';
+                if (pages[pageName]) {
+                    pages[pageName].style.display = (pageName === 'login') ? 'flex' : 'block';
+                }
             }
 
             async function carregarAlunos() {
                 listaDeAlunosContainer.innerHTML = '<p>Carregando alunos...</p>';
                 try {
                     const url = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/Alunos`;
-                    const response = await fetch(url, {
-                        headers: { 'Authorization': `Bearer ${AIRTABLE_API_KEY}` }
-                    });
+                    const response = await fetch(url, { headers: { 'Authorization': `Bearer ${AIRTABLE_API_KEY}` } });
                     if (!response.ok) throw new Error('Falha ao buscar dados no Airtable.');
                     
                     const data = await response.json();
                     const alunos = data.records;
 
-                    listaDeAlunosContainer.innerHTML = '';
+                    listaDeAlunosContainer.innerHTML = ''; 
                     if (alunos.length === 0) {
                         listaDeAlunosContainer.innerHTML = '<p>Nenhum aluno cadastrado.</p>';
                         return;
@@ -182,17 +182,18 @@
                     const url = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/Alunos`;
                     const response = await fetch(url, {
                         method: 'POST',
-                        headers: {
-                            'Authorization': `Bearer ${AIRTABLE_API_KEY}`,
-                            'Content-Type': 'application/json'
-                        },
+                        headers: { 'Authorization': `Bearer ${AIRTABLE_API_KEY}`, 'Content-Type': 'application/json' },
                         body: JSON.stringify(alunoData)
                     });
-                    if (!response.ok) throw new Error('Falha ao adicionar aluno.');
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.error.message || 'Falha ao adicionar aluno.');
+                    }
                     
                     messageEl.textContent = 'Aluno cadastrado com sucesso!';
                     messageEl.className = 'text-center mb-4 text-green-600';
                     addAlunoForm.reset();
+
                 } catch (error) {
                     messageEl.textContent = 'Erro: ' + error.message;
                     messageEl.className = 'text-center mb-4 text-red-600';
@@ -204,7 +205,7 @@
             }
             
             // --- Nossos "Ouvintes de Eventos" ---
-            loginForm.addEventListener('submit', function(event) {
+            if(loginForm) loginForm.addEventListener('submit', function(event) {
                 event.preventDefault();
                 if (loginForm.username.value === 'ana' && loginForm.password.value === '1234') {
                     showPage('dashboard');
@@ -213,18 +214,18 @@
                 }
             });
 
-            logoutButton.addEventListener('click', () => showPage('login'));
+            if(logoutButton) logoutButton.addEventListener('click', () => showPage('login'));
 
-            meusAlunosCard.addEventListener('click', () => {
+            if(meusAlunosCard) meusAlunosCard.addEventListener('click', () => {
                 showPage('alunos');
                 carregarAlunos();
             });
 
-            addAlunoCard.addEventListener('click', () => {
+            if(addAlunoCard) addAlunoCard.addEventListener('click', () => {
                 showPage('addAluno');
             });
             
-            addAlunoForm.addEventListener('submit', adicionarAluno);
+            if(addAlunoForm) addAlunoForm.addEventListener('submit', adicionarAluno);
 
             backButtons.forEach(button => {
                 button.addEventListener('click', () => showPage('dashboard'));
