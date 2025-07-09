@@ -101,4 +101,40 @@
                 for (let page in pages) {
                     pages[page].style.display = 'none';
                 }
-                // Most
+                // Mostra a página desejada
+                pages[pageName].style.display = 'block';
+            }
+
+            // --- Nossos "Ouvintes de Eventos" ---
+            if (loginForm) {
+                loginForm.addEventListener('submit', function(event) {
+                    event.preventDefault();
+                    if (loginForm.username.value === 'ana' && loginForm.password.value === '1234') {
+                        showPage('dashboard');
+                    } else {
+                        alert('Usuário ou senha inválidos!');
+                    }
+                });
+            }
+
+            if (logoutButton) {
+                logoutButton.addEventListener('click', () => showPage('login'));
+            }
+
+            if (meusAlunosCard) {
+                meusAlunosCard.addEventListener('click', () => {
+                    showPage('alunos');
+                    // Futuramente, aqui chamaremos a função para carregar os alunos
+                });
+            }
+
+            backButtons.forEach(button => {
+                button.addEventListener('click', () => showPage('dashboard'));
+            });
+
+            // --- Início do App ---
+            showPage('login'); // Começa mostrando a tela de login
+        });
+    </script>
+</body>
+</html>
