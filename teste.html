@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <title>Teste de Conexão com Airtable</title>
+</head>
+<body>
+    <h1>Testando a conexão...</h1>
+    <p>Abra o console (F12) para ver o resultado.</p>
+
+    <script>
+        // --- NOSSAS CREDENCIAIS ---
+        const AIRTABLE_API_KEY = 'patIf3xcHjeT8DGQ1.6846b6f3e9465027231c5fe072a739a953928da2844e2878c3f5f4e269bfbf6a';
+        const AIRTABLE_BASE_ID = 'app3Z2bJrTyMK2hHz';
+        const NOME_DA_TABELA = 'Alunos'; // VERIFIQUE SE O NOME ESTÁ EXATO (maiúsculas e minúsculas)
+        // -------------------------
+
+        async function testarConexao() {
+            console.log('Iniciando teste...');
+            try {
+                const url = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${NOME_DA_TABELA}`;
+
+                console.log('Tentando acessar a URL:', url);
+
+                const response = await fetch(url, {
+                    headers: { 'Authorization': `Bearer ${AIRTABLE_API_KEY}` }
+                });
+
+                console.log('Resposta recebida do servidor:', response);
+
+                if (!response.ok) {
+                    throw new Error(`Erro de Rede: ${response.status} - ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                console.log('CONEXÃO BEM-SUCEDIDA! Dados recebidos:', data.records);
+                document.body.innerHTML = '<h1>CONEXÃO BEM-SUCEDIDA! Veja o console.</h1>';
+
+            } catch (error) {
+                console.error('FALHA NA CONEXÃO:', error);
+                document.body.innerHTML = `<h1>FALHA NA CONEXÃO. Veja o console.</h1><p>${error}</p>`;
+            }
+        }
+
+        testarConexao();
+    </script>
+</body>
+</html>
