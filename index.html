@@ -9,6 +9,7 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
         body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
+        /* Esconde todas as "páginas" por padrão */
         .page { display: none; }
     </style>
 </head>
@@ -18,12 +19,12 @@
         <div class="w-full max-w-sm">
             <div class="bg-white shadow-xl rounded-xl p-8">
                 <div class="text-center mb-6">
-                    <h1 class="text-2xl font-bold text-gray-800">Bem-vinda, Ana!</h1>
-                    <p class="text-gray-500">Acesse seu painel de controle.</p>
+                    <h1 class="text-2xl font-bold text-gray-800">Acesso Restrito</h1>
+                    <p class="text-gray-500">Entre com suas credenciais.</p>
                 </div>
                 <form id="login-form">
                     <div class="mb-4">
-                        <label for="username" class="block text-gray-700 text-sm font-bold mb-2">Usuário</label>
+                        <label for="username" class="block text-gray-700 text-sm font-bold mb-2">Usuário / E-mail</label>
                         <input id="username" type="text" class="shadow-sm appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500">
                     </div>
                     <div class="mb-6">
@@ -50,15 +51,13 @@
                 <div id="add-aluno-card" class="bg-white p-6 rounded-xl shadow hover:shadow-lg transition-shadow cursor-pointer">
                     <i class="fas fa-user-plus text-3xl text-blue-500 mb-4"></i>
                     <h2 class="text-lg font-bold">Adicionar Aluno</h2>
-                    <p class="text-gray-600">Cadastre um novo aluno na sua base.</p>
+                    <p class="text-gray-600">Cadastre um novo aluno.</p>
                 </div>
-
                 <div id="meus-alunos-card" class="bg-white p-6 rounded-xl shadow hover:shadow-lg transition-shadow cursor-pointer">
                     <i class="fas fa-users text-3xl text-green-500 mb-4"></i>
                     <h2 class="text-lg font-bold">Meus Alunos</h2>
                     <p class="text-gray-600">Visualize e gerencie seus alunos.</p>
                 </div>
-
                 <div id="montar-treino-card" class="bg-white p-6 rounded-xl shadow hover:shadow-lg transition-shadow cursor-pointer">
                     <i class="fas fa-dumbbell text-3xl text-purple-500 mb-4"></i>
                     <h2 class="text-lg font-bold">Montar Treino</h2>
@@ -82,59 +81,67 @@
 
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // --- Nossos Elementos HTML ---
-            const pages = {
-                login: document.getElementById('login-screen'),
-                dashboard: document.getElementById('dashboard-screen'),
-                alunos: document.getElementById('alunos-screen')
-            };
+    document.addEventListener('DOMContentLoaded', function() {
+        // --- Nossos Elementos HTML ---
+        const pages = {
+            login: document.getElementById('login-screen'),
+            dashboard: document.getElementById('dashboard-screen'),
+            alunos: document.getElementById('alunos-screen')
+        };
+        const loginForm = document.getElementById('login-form');
+        const logoutButton = document.getElementById('logout-button');
+        const meusAlunosCard = document.getElementById('meus-alunos-card');
+        const backButtons = document.querySelectorAll('.back-to-dashboard');
 
-            const loginForm = document.getElementById('login-form');
-            const logoutButton = document.getElementById('logout-button');
-            const meusAlunosCard = document.getElementById('meus-alunos-card');
-            const backButtons = document.querySelectorAll('.back-to-dashboard');
-
-            // --- Nossas Funções ---
-            function showPage(pageName) {
-                // Esconde todas as páginas
-                for (let page in pages) {
-                    pages[page].style.display = 'none';
+        // --- Nossas Funções ---
+        function showPage(pageName) {
+            // Esconde todas as "páginas"
+            for (let pageId in pages) {
+                if (pages[pageId]) {
+                    pages[pageId].style.display = 'none';
                 }
-                // Mostra a página desejada
-                pages[pageName].style.display = 'block';
             }
-
-            // --- Nossos "Ouvintes de Eventos" ---
-            if (loginForm) {
-                loginForm.addEventListener('submit', function(event) {
-                    event.preventDefault();
-                    if (loginForm.username.value === 'ana' && loginForm.password.value === '1234') {
-                        showPage('dashboard');
-                    } else {
-                        alert('Usuário ou senha inválidos!');
-                    }
-                });
+            // Mostra a página desejada
+            if (pages[pageName]) {
+                // Usa 'flex' para a tela de login para centralizar
+                pages[pageName].style.display = (pageName === 'login') ? 'flex' : 'block';
             }
+        }
 
-            if (logoutButton) {
-                logoutButton.addEventListener('click', () => showPage('login'));
-            }
-
-            if (meusAlunosCard) {
-                meusAlunosCard.addEventListener('click', () => {
-                    showPage('alunos');
-                    // Futuramente, aqui chamaremos a função para carregar os alunos
-                });
-            }
-
-            backButtons.forEach(button => {
-                button.addEventListener('click', () => showPage('dashboard'));
+        // --- Lógica de Login (ainda com senha fixa, vamos conectar no próximo passo) ---
+        if(loginForm) {
+            loginForm.addEventListener('submit', function(event) {
+                event.preventDefault();
+                // Por enquanto, o login da Ana está fixo.
+                if (loginForm.username.value === 'ana' && loginForm.password.value === '1234') {
+                    showPage('dashboard');
+                } else {
+                    // Aqui entrará a lógica para o login dos alunos no futuro
+                    alert('Usuário ou senha inválidos!');
+                }
             });
+        }
 
-            // --- Início do App ---
-            showPage('login'); // Começa mostrando a tela de login
+        // --- Nossos "Ouvintes de Eventos" para Navegação ---
+        if(logoutButton) {
+            logoutButton.addEventListener('click', () => showPage('login'));
+        }
+
+        if(meusAlunosCard) {
+            meusAlunosCard.addEventListener('click', () => {
+                showPage('alunos');
+                // NOSSO PRÓXIMO PASSO SERÁ CHAMAR A FUNÇÃO PARA CARREGAR OS ALUNOS AQUI
+                // carregarAlunos(); 
+            });
+        }
+
+        backButtons.forEach(button => {
+            button.addEventListener('click', () => showPage('dashboard'));
         });
+
+        // --- Início do App ---
+        showPage('login'); // Garante que a primeira tela seja sempre a de login
+    });
     </script>
 </body>
 </html>
