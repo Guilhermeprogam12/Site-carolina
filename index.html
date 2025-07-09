@@ -66,6 +66,33 @@
         </main>
     </div>
 
+    <div id="add-aluno-screen" class="page w-full h-full">
+        <header class="bg-white shadow-md p-4 flex justify-between items-center">
+            <h1 class="text-xl font-bold text-gray-800">Adicionar Novo Aluno</h1>
+            <button class="back-to-dashboard text-sm text-blue-600 hover:underline">&larr; Voltar ao Painel</button>
+        </header>
+        <main class="p-8">
+            <div class="max-w-xl mx-auto bg-white rounded-xl shadow p-8">
+                <form id="add-aluno-form">
+                    <div class="mb-4">
+                        <label for="nome-aluno" class="block text-gray-700 text-sm font-bold mb-2">Nome Completo</label>
+                        <input id="nome-aluno" type="text" required class="shadow-sm appearance-none border rounded-lg w-full py-3 px-4 text-gray-700">
+                    </div>
+                    <div class="mb-4">
+                        <label for="email-aluno" class="block text-gray-700 text-sm font-bold mb-2">E-mail</label>
+                        <input id="email-aluno" type="email" required class="shadow-sm appearance-none border rounded-lg w-full py-3 px-4 text-gray-700">
+                    </div>
+                    <div class="mb-6">
+                        <label for="senha-aluno" class="block text-gray-700 text-sm font-bold mb-2">Senha Provisória</label>
+                        <input id="senha-aluno" type="password" required class="shadow-sm appearance-none border rounded-lg w-full py-3 px-4 text-gray-700">
+                    </div>
+                    <p id="add-aluno-message" class="text-center mb-4" style="display: none;"></p>
+                    <button type="submit" id="add-aluno-button" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg">Salvar Aluno</button>
+                </form>
+            </div>
+        </main>
+    </div>
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // --- SUAS CREDENCIAIS DO AIRTABLE ---
@@ -77,13 +104,16 @@
             const pages = {
                 login: document.getElementById('login-screen'),
                 dashboard: document.getElementById('dashboard-screen'),
-                alunos: document.getElementById('alunos-screen')
+                alunos: document.getElementById('alunos-screen'),
+                addAluno: document.getElementById('add-aluno-screen')
             };
             const loginForm = document.getElementById('login-form');
             const logoutButton = document.getElementById('logout-button');
             const meusAlunosCard = document.getElementById('meus-alunos-card');
+            const addAlunoCard = document.getElementById('add-aluno-card');
             const backButtons = document.querySelectorAll('.back-to-dashboard');
             const listaDeAlunosContainer = document.getElementById('lista-de-alunos-container');
+            const addAlunoForm = document.getElementById('add-aluno-form');
 
             // --- Nossas Funções ---
             function showPage(pageName) {
@@ -105,8 +135,7 @@
                     const data = await response.json();
                     const alunos = data.records;
 
-                    listaDeAlunosContainer.innerHTML = ''; 
-
+                    listaDeAlunosContainer.innerHTML = '';
                     if (alunos.length === 0) {
                         listaDeAlunosContainer.innerHTML = '<p>Nenhum aluno cadastrado.</p>';
                         return;
@@ -114,34 +143,16 @@
 
                     const table = document.createElement('table');
                     table.className = 'min-w-full divide-y divide-gray-200';
-                    table.innerHTML = `
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200"></tbody>
-                    `;
+                    table.innerHTML = `<thead class="bg-gray-50"><tr><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th></tr></thead><tbody class="bg-white divide-y divide-gray-200"></tbody>`;
                     
                     const tbody = table.querySelector('tbody');
                     alunos.forEach(record => {
                         const aluno = record.fields;
                         const statusClass = aluno.status === 'Ativo' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800';
                         const row = document.createElement('tr');
-                        row.innerHTML = `
-                            <td class="px-6 py-4 whitespace-nowrap">${aluno.nome_aluno || ''}</td>
-                            <td class="px-6 py-4 whitespace-nowrap">${aluno.email || ''}</td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusClass}">
-                                    ${aluno.status || ''}
-                                </span>
-                            </td>
-                        `;
+                        row.innerHTML = `<td class="px-6 py-4 whitespace-nowrap">${aluno.nome_aluno || ''}</td><td class="px-6 py-4 whitespace-nowrap">${aluno.email || ''}</td><td class="px-6 py-4 whitespace-nowrap"><span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusClass}">${aluno.status || ''}</span></td>`;
                         tbody.appendChild(row);
                     });
-
                     listaDeAlunosContainer.appendChild(table);
 
                 } catch (error) {
@@ -150,6 +161,48 @@
                 }
             }
 
+            async function adicionarAluno(event) {
+                event.preventDefault();
+                const addButton = document.getElementById('add-aluno-button');
+                const messageEl = document.getElementById('add-aluno-message');
+                addButton.disabled = true;
+                addButton.textContent = 'Salvando...';
+                messageEl.style.display = 'none';
+
+                const alunoData = {
+                    fields: {
+                        "nome_aluno": document.getElementById('nome-aluno').value,
+                        "email": document.getElementById('email-aluno').value,
+                        "senha": document.getElementById('senha-aluno').value,
+                        "status": "Ativo"
+                    }
+                };
+
+                try {
+                    const url = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/Alunos`;
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${AIRTABLE_API_KEY}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(alunoData)
+                    });
+                    if (!response.ok) throw new Error('Falha ao adicionar aluno.');
+                    
+                    messageEl.textContent = 'Aluno cadastrado com sucesso!';
+                    messageEl.className = 'text-center mb-4 text-green-600';
+                    addAlunoForm.reset();
+                } catch (error) {
+                    messageEl.textContent = 'Erro: ' + error.message;
+                    messageEl.className = 'text-center mb-4 text-red-600';
+                } finally {
+                    messageEl.style.display = 'block';
+                    addButton.disabled = false;
+                    addButton.textContent = 'Salvar Aluno';
+                }
+            }
+            
             // --- Nossos "Ouvintes de Eventos" ---
             loginForm.addEventListener('submit', function(event) {
                 event.preventDefault();
@@ -164,8 +217,14 @@
 
             meusAlunosCard.addEventListener('click', () => {
                 showPage('alunos');
-                carregarAlunos(); 
+                carregarAlunos();
             });
+
+            addAlunoCard.addEventListener('click', () => {
+                showPage('addAluno');
+            });
+            
+            addAlunoForm.addEventListener('submit', adicionarAluno);
 
             backButtons.forEach(button => {
                 button.addEventListener('click', () => showPage('dashboard'));
