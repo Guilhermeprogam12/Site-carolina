@@ -7,100 +7,135 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
-        /* O app principal começa escondido */
-        .app-container { display: none; } 
+        .page { display: none; }
     </style>
 </head>
 <body class="bg-gray-100">
 
-    <div id="login-screen" class="flex items-center justify-center min-h-screen">
-        <div class="w-full max-w-sm">
-            <div class="bg-white shadow-xl rounded-xl p-8">
-                <div class="text-center mb-6">
-                    <h1 class="text-2xl font-bold text-gray-800">Bem-vinda, Ana!</h1>
-                    <p class="text-gray-500">Acesse seu painel de controle.</p>
-                </div>
-                <form id="login-form">
-                    <div class="mb-4">
-                        <label for="username" class="block text-gray-700 text-sm font-bold mb-2">Usuário</label>
-                        <input id="username" type="text" class="shadow-sm appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    </div>
-                    <div class="mb-6">
-                        <label for="password" class="block text-gray-700 text-sm font-bold mb-2">Senha</label>
-                        <input id="password" type="password" class="shadow-sm appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 mb-3 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    </div>
-                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg focus:outline-none focus:shadow-outline transition-colors">
-                        Entrar
-                    </button>
-                </form>
-            </div>
+    <div id="login-screen" class="page flex items-center justify-center min-h-screen">
         </div>
-    </div>
 
-    <div id="app-container" class="app-container w-full h-full">
+    <div id="dashboard-screen" class="page w-full h-full">
         <header class="bg-white shadow-md p-4 flex justify-between items-center">
             <h1 class="text-xl font-bold text-gray-800">Painel da Personal</h1>
             <button id="logout-button" class="text-sm text-blue-600 hover:underline">Sair</button>
         </header>
-        
         <main class="p-8">
             <h2 class="text-2xl font-bold text-gray-700 mb-6">Visão Geral</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div class="bg-white p-6 rounded-xl shadow hover:shadow-lg transition-shadow cursor-pointer">
-                    <i class="fas fa-user-plus text-3xl text-blue-500 mb-4"></i>
-                    <h2 class="text-lg font-bold">Adicionar Aluno</h2>
-                    <p class="text-gray-600">Cadastre um novo aluno na sua base.</p>
-                </div>
-
-                <div class="bg-white p-6 rounded-xl shadow hover:shadow-lg transition-shadow cursor-pointer">
-                    <i class="fas fa-users text-3xl text-green-500 mb-4"></i>
-                    <h2 class="text-lg font-bold">Meus Alunos</h2>
-                    <p class="text-gray-600">Visualize e gerencie seus alunos.</p>
-                </div>
-
-                <div class="bg-white p-6 rounded-xl shadow hover:shadow-lg transition-shadow cursor-pointer">
-                    <i class="fas fa-dumbbell text-3xl text-purple-500 mb-4"></i>
-                    <h2 class="text-lg font-bold">Montar Treino</h2>
-                    <p class="text-gray-600">Crie um novo plano de treino.</p>
-                </div>
+                <div id="add-aluno-card" class="bg-white p-6 rounded-xl shadow hover:shadow-lg transition-shadow cursor-pointer"><i class="fas fa-user-plus text-3xl text-blue-500 mb-4"></i><h2 class="text-lg font-bold">Adicionar Aluno</h2><p class="text-gray-600">Cadastre um novo aluno.</p></div>
+                <div id="meus-alunos-card" class="bg-white p-6 rounded-xl shadow hover:shadow-lg transition-shadow cursor-pointer"><i class="fas fa-users text-3xl text-green-500 mb-4"></i><h2 class="text-lg font-bold">Meus Alunos</h2><p class="text-gray-600">Visualize e gerencie seus alunos.</p></div>
+                <div id="montar-treino-card" class="bg-white p-6 rounded-xl shadow hover:shadow-lg transition-shadow cursor-pointer"><i class="fas fa-dumbbell text-3xl text-purple-500 mb-4"></i><h2 class="text-lg font-bold">Montar Treino</h2><p class="text-gray-600">Crie um novo plano de treino.</p></div>
+            </div>
+        </main>
+    </div>
+    
+    <div id="alunos-screen" class="page w-full h-full">
+        <header class="bg-white shadow-md p-4 flex justify-between items-center">
+            <h1 class="text-xl font-bold text-gray-800">Meus Alunos</h1>
+            <button class="back-to-dashboard text-sm text-blue-600 hover:underline">&larr; Voltar ao Painel</button>
+        </header>
+        <main class="p-8">
+            <div id="lista-de-alunos-container" class="bg-white rounded-xl shadow p-6">
+                <p>Carregando alunos...</p>
             </div>
         </main>
     </div>
 
     <script>
-        const loginScreen = document.getElementById('login-screen');
-        const appContainer = document.getElementById('app-container');
-        const loginForm = document.getElementById('login-form');
-        const logoutButton = document.getElementById('logout-button');
+        document.addEventListener('DOMContentLoaded', function() {
+            const pages = {
+                login: document.getElementById('login-screen'),
+                dashboard: document.getElementById('dashboard-screen'),
+                alunos: document.getElementById('alunos-screen')
+            };
+            const loginForm = document.getElementById('login-form');
+            const logoutButton = document.getElementById('logout-button');
+            const meusAlunosCard = document.getElementById('meus-alunos-card');
+            const backButtons = document.querySelectorAll('.back-to-dashboard');
+            const listaDeAlunosContainer = document.getElementById('lista-de-alunos-container');
 
-        // Função que mostra a "página" correta
-        function showPage(pageId) {
-            loginScreen.style.display = 'none';
-            appContainer.style.display = 'none';
-            
-            if (pageId === 'app') {
-                appContainer.style.display = 'block';
-            } else {
-                loginScreen.style.display = 'flex';
+            function showPage(pageName) {
+                Object.values(pages).forEach(page => page.style.display = 'none');
+                pages[pageName].style.display = 'block';
             }
-        }
 
-        // Lógica de Login (por enquanto, com senha fixa)
-        loginForm.addEventListener('submit', function(event) {
-            event.preventDefault();
-            // No futuro, isso buscará o e-mail e a senha no Airtable
-            if (loginForm.username.value === 'Ana_Carolina' && loginForm.password.value === '2705') {
-                showPage('app'); // Se o login estiver correto, mostra o app
-            } else {
-                alert('Usuário ou senha inválidos!');
+            // ---- NOVA FUNÇÃO PARA BUSCAR E MOSTRAR OS ALUNOS ----
+            async function carregarAlunos() {
+                listaDeAlunosContainer.innerHTML = '<p>Carregando alunos...</p>';
+                try {
+                    // Chama o nosso novo "cofre" seguro
+                    const response = await fetch('/.netlify/functions/get-alunos');
+                    const alunos = await response.json();
+
+                    listaDeAlunosContainer.innerHTML = ''; // Limpa a mensagem "Carregando"
+
+                    if (alunos.length === 0) {
+                        listaDeAlunosContainer.innerHTML = '<p>Nenhum aluno cadastrado.</p>';
+                        return;
+                    }
+
+                    // Cria a tabela para mostrar os alunos
+                    const table = document.createElement('table');
+                    table.className = 'min-w-full divide-y divide-gray-200';
+                    table.innerHTML = `
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200"></tbody>
+                    `;
+                    
+                    const tbody = table.querySelector('tbody');
+                    alunos.forEach(record => {
+                        const aluno = record.fields;
+                        const statusClass = aluno.status === 'Ativo' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800';
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td class="px-6 py-4 whitespace-nowrap">${aluno.nome_aluno}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">${aluno.email}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusClass}">
+                                    ${aluno.status}
+                                </span>
+                            </td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+
+                    listaDeAlunosContainer.appendChild(table);
+
+                } catch (error) {
+                    console.error('Erro ao carregar alunos:', error);
+                    listaDeAlunosContainer.innerHTML = '<p class="text-red-500">Falha ao carregar a lista de alunos.</p>';
+                }
             }
-        });
 
-        // Lógica de Logout
-        logoutButton.addEventListener('click', function() {
-            showPage('login'); // Esconde o app e mostra a tela de login
-        });
+            loginForm.addEventListener('submit', function(event) {
+                event.preventDefault();
+                if (loginForm.username.value === 'ana' && loginForm.password.value === '1234') {
+                    showPage('dashboard');
+                } else {
+                    alert('Usuário ou senha inválidos!');
+                }
+            });
 
+            logoutButton.addEventListener('click', () => showPage('login'));
+
+            meusAlunosCard.addEventListener('click', () => {
+                showPage('alunos');
+                carregarAlunos(); // Chama a nova função ao clicar no card
+            });
+
+            backButtons.forEach(button => {
+                button.addEventListener('click', () => showPage('dashboard'));
+            });
+
+            showPage('login');
+        });
     </script>
 </body>
 </html>
