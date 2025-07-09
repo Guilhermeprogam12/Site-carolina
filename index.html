@@ -9,7 +9,6 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
         body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
-        /* Esconde todas as "páginas" por padrão */
         .page { display: none; }
     </style>
 </head>
@@ -25,11 +24,11 @@
                 <form id="login-form">
                     <div class="mb-4">
                         <label for="username" class="block text-gray-700 text-sm font-bold mb-2">Usuário / E-mail</label>
-                        <input id="username" type="text" class="shadow-sm appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <input id="username" type="text" value="ana" class="shadow-sm appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500">
                     </div>
                     <div class="mb-6">
                         <label for="password" class="block text-gray-700 text-sm font-bold mb-2">Senha</label>
-                        <input id="password" type="password" class="shadow-sm appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 mb-3 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <input id="password" type="password" value="1234" class="shadow-sm appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 mb-3 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500">
                     </div>
                     <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg focus:outline-none focus:shadow-outline transition-colors">
                         Entrar
@@ -48,21 +47,9 @@
         <main class="p-8">
             <h2 class="text-2xl font-bold text-gray-700 mb-6">Visão Geral</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div id="add-aluno-card" class="bg-white p-6 rounded-xl shadow hover:shadow-lg transition-shadow cursor-pointer">
-                    <i class="fas fa-user-plus text-3xl text-blue-500 mb-4"></i>
-                    <h2 class="text-lg font-bold">Adicionar Aluno</h2>
-                    <p class="text-gray-600">Cadastre um novo aluno.</p>
-                </div>
-                <div id="meus-alunos-card" class="bg-white p-6 rounded-xl shadow hover:shadow-lg transition-shadow cursor-pointer">
-                    <i class="fas fa-users text-3xl text-green-500 mb-4"></i>
-                    <h2 class="text-lg font-bold">Meus Alunos</h2>
-                    <p class="text-gray-600">Visualize e gerencie seus alunos.</p>
-                </div>
-                <div id="montar-treino-card" class="bg-white p-6 rounded-xl shadow hover:shadow-lg transition-shadow cursor-pointer">
-                    <i class="fas fa-dumbbell text-3xl text-purple-500 mb-4"></i>
-                    <h2 class="text-lg font-bold">Montar Treino</h2>
-                    <p class="text-gray-600">Crie um novo plano de treino.</p>
-                </div>
+                <div id="add-aluno-card" class="bg-white p-6 rounded-xl shadow hover:shadow-lg transition-shadow cursor-pointer"><i class="fas fa-user-plus text-3xl text-blue-500 mb-4"></i><h2 class="text-lg font-bold">Adicionar Aluno</h2><p class="text-gray-600">Cadastre um novo aluno na sua base.</p></div>
+                <div id="meus-alunos-card" class="bg-white p-6 rounded-xl shadow hover:shadow-lg transition-shadow cursor-pointer"><i class="fas fa-users text-3xl text-green-500 mb-4"></i><h2 class="text-lg font-bold">Meus Alunos</h2><p class="text-gray-600">Visualize e gerencie seus alunos.</p></div>
+                <div id="montar-treino-card" class="bg-white p-6 rounded-xl shadow hover:shadow-lg transition-shadow cursor-pointer"><i class="fas fa-dumbbell text-3xl text-purple-500 mb-4"></i><h2 class="text-lg font-bold">Montar Treino</h2><p class="text-gray-600">Crie um novo plano de treino.</p></div>
             </div>
         </main>
     </div>
@@ -79,69 +66,114 @@
         </main>
     </div>
 
-
     <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // --- Nossos Elementos HTML ---
-        const pages = {
-            login: document.getElementById('login-screen'),
-            dashboard: document.getElementById('dashboard-screen'),
-            alunos: document.getElementById('alunos-screen')
-        };
-        const loginForm = document.getElementById('login-form');
-        const logoutButton = document.getElementById('logout-button');
-        const meusAlunosCard = document.getElementById('meus-alunos-card');
-        const backButtons = document.querySelectorAll('.back-to-dashboard');
+        document.addEventListener('DOMContentLoaded', function() {
+            // --- SUAS CREDENCIAIS DO AIRTABLE ---
+            const AIRTABLE_API_KEY = 'pathwSK7lh88x87gb.deb0e1ecd86f27327c4b209217dbd610cc931203852923c9d1241d73695e118b';
+            const AIRTABLE_BASE_ID = 'app3Z2bJrTyMK2hHz';
+            // ------------------------------------
 
-        // --- Nossas Funções ---
-        function showPage(pageName) {
-            // Esconde todas as "páginas"
-            for (let pageId in pages) {
-                if (pages[pageId]) {
+            // --- Nossos Elementos HTML ---
+            const pages = {
+                login: document.getElementById('login-screen'),
+                dashboard: document.getElementById('dashboard-screen'),
+                alunos: document.getElementById('alunos-screen')
+            };
+            const loginForm = document.getElementById('login-form');
+            const logoutButton = document.getElementById('logout-button');
+            const meusAlunosCard = document.getElementById('meus-alunos-card');
+            const backButtons = document.querySelectorAll('.back-to-dashboard');
+            const listaDeAlunosContainer = document.getElementById('lista-de-alunos-container');
+
+            // --- Nossas Funções ---
+            function showPage(pageName) {
+                for (let pageId in pages) {
                     pages[pageId].style.display = 'none';
                 }
-            }
-            // Mostra a página desejada
-            if (pages[pageName]) {
-                // Usa 'flex' para a tela de login para centralizar
                 pages[pageName].style.display = (pageName === 'login') ? 'flex' : 'block';
             }
-        }
 
-        // --- Lógica de Login (ainda com senha fixa, vamos conectar no próximo passo) ---
-        if(loginForm) {
+            async function carregarAlunos() {
+                listaDeAlunosContainer.innerHTML = '<p>Carregando alunos...</p>';
+                try {
+                    const url = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/Alunos`;
+                    const response = await fetch(url, {
+                        headers: { 'Authorization': `Bearer ${AIRTABLE_API_KEY}` }
+                    });
+                    if (!response.ok) throw new Error('Falha ao buscar dados no Airtable.');
+                    
+                    const data = await response.json();
+                    const alunos = data.records;
+
+                    listaDeAlunosContainer.innerHTML = ''; 
+
+                    if (alunos.length === 0) {
+                        listaDeAlunosContainer.innerHTML = '<p>Nenhum aluno cadastrado.</p>';
+                        return;
+                    }
+
+                    const table = document.createElement('table');
+                    table.className = 'min-w-full divide-y divide-gray-200';
+                    table.innerHTML = `
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200"></tbody>
+                    `;
+                    
+                    const tbody = table.querySelector('tbody');
+                    alunos.forEach(record => {
+                        const aluno = record.fields;
+                        const statusClass = aluno.status === 'Ativo' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800';
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td class="px-6 py-4 whitespace-nowrap">${aluno.nome_aluno || ''}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">${aluno.email || ''}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusClass}">
+                                    ${aluno.status || ''}
+                                </span>
+                            </td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+
+                    listaDeAlunosContainer.appendChild(table);
+
+                } catch (error) {
+                    console.error('Erro ao carregar alunos:', error);
+                    listaDeAlunosContainer.innerHTML = '<p class="text-red-500">Falha ao carregar a lista de alunos.</p>';
+                }
+            }
+
+            // --- Nossos "Ouvintes de Eventos" ---
             loginForm.addEventListener('submit', function(event) {
                 event.preventDefault();
-                // Por enquanto, o login da Ana está fixo.
                 if (loginForm.username.value === 'ana' && loginForm.password.value === '1234') {
                     showPage('dashboard');
                 } else {
-                    // Aqui entrará a lógica para o login dos alunos no futuro
                     alert('Usuário ou senha inválidos!');
                 }
             });
-        }
 
-        // --- Nossos "Ouvintes de Eventos" para Navegação ---
-        if(logoutButton) {
             logoutButton.addEventListener('click', () => showPage('login'));
-        }
 
-        if(meusAlunosCard) {
             meusAlunosCard.addEventListener('click', () => {
                 showPage('alunos');
-                // NOSSO PRÓXIMO PASSO SERÁ CHAMAR A FUNÇÃO PARA CARREGAR OS ALUNOS AQUI
-                // carregarAlunos(); 
+                carregarAlunos(); 
             });
-        }
 
-        backButtons.forEach(button => {
-            button.addEventListener('click', () => showPage('dashboard'));
+            backButtons.forEach(button => {
+                button.addEventListener('click', () => showPage('dashboard'));
+            });
+
+            // --- Início do App ---
+            showPage('login');
         });
-
-        // --- Início do App ---
-        showPage('login'); // Garante que a primeira tela seja sempre a de login
-    });
     </script>
 </body>
 </html>
