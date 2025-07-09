@@ -7,32 +7,33 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
-        /* Estilos básicos para uma aparência limpa */
-        body { font-family: 'Inter', sans-serif; background-color: #f4f7f6; }
-        .app-container { display: none; } /* A tela principal começa escondida */
+        /* O app principal começa escondido */
+        .app-container { display: none; } 
     </style>
 </head>
-<body class="flex items-center justify-center min-h-screen">
+<body class="bg-gray-100">
 
-    <div id="login-screen" class="w-full max-w-sm">
-        <div class="bg-white shadow-md rounded-xl p-8">
-            <div class="text-center mb-6">
-                <h1 class="text-2xl font-bold text-gray-800">Bem-vinda, Ana!</h1>
-                <p class="text-gray-500">Acesse seu painel de controle.</p>
+    <div id="login-screen" class="flex items-center justify-center min-h-screen">
+        <div class="w-full max-w-sm">
+            <div class="bg-white shadow-xl rounded-xl p-8">
+                <div class="text-center mb-6">
+                    <h1 class="text-2xl font-bold text-gray-800">Bem-vinda, Ana!</h1>
+                    <p class="text-gray-500">Acesse seu painel de controle.</p>
+                </div>
+                <form id="login-form">
+                    <div class="mb-4">
+                        <label for="username" class="block text-gray-700 text-sm font-bold mb-2">Usuário</label>
+                        <input id="username" type="text" class="shadow-sm appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div class="mb-6">
+                        <label for="password" class="block text-gray-700 text-sm font-bold mb-2">Senha</label>
+                        <input id="password" type="password" class="shadow-sm appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 mb-3 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg focus:outline-none focus:shadow-outline transition-colors">
+                        Entrar
+                    </button>
+                </form>
             </div>
-            <form id="login-form">
-                <div class="mb-4">
-                    <label for="username" class="block text-gray-700 text-sm font-bold mb-2">Usuário</label>
-                    <input id="username" type="text" class="shadow-sm appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-                <div class="mb-6">
-                    <label for="password" class="block text-gray-700 text-sm font-bold mb-2">Senha</label>
-                    <input id="password" type="password" class="shadow-sm appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 mb-3 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg focus:outline-none focus:shadow-outline transition-colors">
-                    Entrar
-                </button>
-            </form>
         </div>
     </div>
 
@@ -43,6 +44,7 @@
         </header>
         
         <main class="p-8">
+            <h2 class="text-2xl font-bold text-gray-700 mb-6">Visão Geral</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <div class="bg-white p-6 rounded-xl shadow hover:shadow-lg transition-shadow cursor-pointer">
                     <i class="fas fa-user-plus text-3xl text-blue-500 mb-4"></i>
@@ -66,14 +68,12 @@
     </div>
 
     <script>
-        // --- LÓGICA BÁSICA DO NOSSO "APLICATIVO" ---
-
         const loginScreen = document.getElementById('login-screen');
         const appContainer = document.getElementById('app-container');
         const loginForm = document.getElementById('login-form');
         const logoutButton = document.getElementById('logout-button');
 
-        // Função para mostrar uma "página"
+        // Função que mostra a "página" correta
         function showPage(pageId) {
             loginScreen.style.display = 'none';
             appContainer.style.display = 'none';
@@ -85,16 +85,12 @@
             }
         }
 
-        // Lógica de Login
+        // Lógica de Login (por enquanto, com senha fixa)
         loginForm.addEventListener('submit', function(event) {
             event.preventDefault();
-            const username = loginForm.username.value;
-            const password = loginForm.password.value;
-
-            // Por enquanto, o login e a senha estão "fixos" no código
-            if (username === 'ana' && password === '1234') {
-                // Se o login estiver correto, esconde a tela de login e mostra o app
-                showPage('app');
+            // No futuro, isso buscará o e-mail e a senha no Airtable
+            if (loginForm.username.value === 'Ana_Carolina' && loginForm.password.value === '2705') {
+                showPage('app'); // Se o login estiver correto, mostra o app
             } else {
                 alert('Usuário ou senha inválidos!');
             }
@@ -102,8 +98,7 @@
 
         // Lógica de Logout
         logoutButton.addEventListener('click', function() {
-            // Esconde o app e mostra a tela de login novamente
-            showPage('login');
+            showPage('login'); // Esconde o app e mostra a tela de login
         });
 
     </script>
